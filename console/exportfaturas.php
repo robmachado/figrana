@@ -1,7 +1,27 @@
 <?php
-require_once '../vendor/autoload.php';
+require_once '../bootstrap.php';
 
-use Granatum;
+use Granatum\Estados;
+use Granatum\Categorias;
+
+$token = $_ENV['GRANATUM_TOKEN'];
+
+$ufs = new Estados();
+$ufs->setToken($token);
+$ufs->all();
+$error = $ufs->error();
+$estados = $ufs->body();
+
+$cats = new Categorias();
+$cats->setToken($token);
+$cats->all();
+$categorias = $cats->body();
+
+echo "<pre>";
+echo "ERROR: $error <br>";
+echo $categorias;
+echo "</pre>";
+
 
 /* 
  * Procura por faturas no legado, com base nos ultimo envio registrado
