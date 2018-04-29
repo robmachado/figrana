@@ -13,18 +13,13 @@
             "Figrana\\": "src/"
         }
     },
-    "repositories": [
-        {
-            "type": "vcs",
-            "url": "https://github.com/robmachado/granatum.git"
-        }
-    ],
     "require": {
-        "lucasnpinheiro/granatum": "dev-master",
+        "robmachado/apigranatum": "^1.0",
         "vlucas/phpdotenv": "~2.2",
         "nesbot/carbon": "1.25.*",
         "league/flysystem": "^1.0.8",
-        "phpmailer/phpmailer": "^6.0"
+        "phpmailer/phpmailer": "^6.0",
+        "nfephp-org/sped-nfe": "^5.0"
     },
     "require-dev": {
         "squizlabs/php_codesniffer": "^2.8",
@@ -38,5 +33,5 @@
         "phpcs": "vendor/bin/phpcs --standard=psr2 src/",
         "phpstan": "vendor/bin/phpstan analyse src/ --level 7"
     },
-    "minimum-stability": "dev"
+    "minimum-stability": "stable"
 }

@@ -1,27 +1,35 @@
 <?php
 require_once '../bootstrap.php';
 
-use Granatum\Estados;
-use Granatum\Categorias;
+use ApiGranatum\Connector;
+use ApiGranatum\Granatum;
 
 $token = $_ENV['GRANATUM_TOKEN'];
+$version = $_ENV['GRANATUM_VERSION'];
+$uri = $_ENV['GRANATUM_URI'];
 
-$ufs = new Estados();
-$ufs->setToken($token);
-$ufs->all();
-$error = $ufs->error();
-$estados = $ufs->body();
-
-$cats = new Categorias();
-$cats->setToken($token);
-$cats->all();
-$categorias = $cats->body();
-
-echo "<pre>";
-echo "ERROR: $error <br>";
-echo $categorias;
-echo "</pre>";
-
+try {
+    $conn = new Connector($token, $version, $uri);
+    $resp = Granatum::categorias($conn)->get(790247);
+    if ($resp === 'false') {
+        echo "Fracasso. Falhou !";
+    } elseif ($resp === 'true') {
+            echo "Sucesso!!";
+    } else {
+        $std = json_decode($resp);
+        echo "<pre>";
+        print_r($std);
+        echo "</pre>";
+        foreach($std->categorias_filhas as $child) {
+            $d[] = $child->descricao;
+        }
+        echo "<pre>";
+        print_r($d);
+        echo "</pre>";
+    }
+} catch (\Exception $e) {
+    echo $e->getMessage();
+}
 
 /* 
  * Procura por faturas no legado, com base nos ultimo envio registrado

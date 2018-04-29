@@ -1,6 +1,6 @@
 <?php
 
-namespace Figrama\Processes;
+namespace Figrana\Processes;
 
 class FindFaturas
 {

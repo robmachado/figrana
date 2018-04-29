@@ -1,6 +1,6 @@
 <?php
 
-namespace Figrama;
+namespace Figrana;
 
 use \PDO;
 

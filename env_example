@@ -4,6 +4,8 @@ APP_DEBUG=true
 APP_URL=http://localhost/figrana
 
 GRANATUM_TOKEN=
+GRANATUM_VERSION=v1
+GRANATUM_URI=https://api.granatum.com.br
 
 DB1_CONNECTION=MYSQL
 DB1_HOST=127.0.0.1
