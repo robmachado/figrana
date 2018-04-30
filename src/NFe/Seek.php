@@ -10,8 +10,11 @@ class Seek
 {
     public $filesystem;
     
-    public function __construct($path)
+    public function __construct($path = null)
     {
+        if (empty($path)) {
+            $path = $_ENV['NFE_PATH'];
+        }
         $adapter = new Local($path);
         $this->filesystem = new Filesystem($adapter);
     }

@@ -11,8 +11,7 @@ class Parceiros
     const CLIENTE = 'C';
     
     private $conn;
-    public $fornecedor;
-    public $cliente;
+    public $dados;
     
     public function __construct()
     {
@@ -38,6 +37,7 @@ class Parceiros
             //não localizado então incluir
             $resp = $parceiro->add($data);
         }
+        $this->dados = $resp;
         $std = json_decode($resp);
         if (!empty($std)) {
            if (is_array($std)) {

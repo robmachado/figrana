@@ -40,7 +40,7 @@ chmod -R 777 /var/nfe
 ; cd /etc/cron.d
 ; nano job_rsync_nfe
 
-# Tarefa de busca do status dos serviços das autorizadoras
+# Tarefa de sincronizacao das NFe
 # Essa tarefa será executada
 # */5  = a cada 5 minutos,
 # 6-21 = das 6 às 21 horas,

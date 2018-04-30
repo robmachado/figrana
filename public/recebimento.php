@@ -29,16 +29,90 @@ use Figrana\NFe\Seek;
  * 
  */
 
+$chave = !empty($_POST['chave']) ? $_POST['chave'] : null;
+$id = !empty($_POST['id']) ? $_POST['id'] : null;
 
 //$chave = "35180404728183000117550000008689871927943207";
-$chave = "35180415179682002243550010002061521770468448";
-$see = new Seek('/var/nfe/producao/recebidas');
-$std = $see->getStd($chave);
+//$chave = "35180415179682002243550010002061521770468448";
 
-$entra = new Entradas();
-$std = $entra->read($std);
+if (empty($chave) && empty($id)) {
+    $template = file_get_contents('template.html');
+    $template = str_replace('{{ template_title }}', 'Recebimento Fiscal', $template);
+    $form = "<h1>Recebimento Fiscal</h1>
+        <form method=\"POST\" action=\"recebimento.php\">
+        <div class=\"row\">
+            <div class=\"col-md-2\"></div>
+            <div class=\"col-md-8\">
+                <label for=\"ano\">Chave NFe</label>
+                <div class=\"form-group\">
+                    <input type='text' class=\"form-control\" id=\"chave\" name=\"chave\" />
+                </div>
+            </div>
+            <div class=\"col-md-2\"></div>
+        </div>
+        <div class=\"row\">
+            <div class=\"col-md-2\"></div>
+            <div class=\"col-md-8\">
+                <button type=\"submit\" class=\"btn btn-primary\">Submit</button>
+            </div>
+            <div class=\"col-md-2\"></div>
+        </div>
+        </form>";
+    $template = str_replace('{{ script }}', '', $template);
+    $template = str_replace('{{ container }}', $form, $template);
+    echo $template;
+    die;
+} elseif (!empty($chave) && empty($id)) {
+    $chave = preg_replace("/[^0-9]/", "", $chave);
+    $see = new Seek();
+    $std = $see->getStd($chave);
+    
+    $entra = new Entradas();
+    $entra->read($std);
+    $fornec = $entra->parceiros->dados;
+    $dups = $entra->dups;
+    
+    $template = file_get_contents('template.html');
+    $template = str_replace('{{ template_title }}', 'Recebimento Fiscal', $template);
+    
+    $form = "<h1>Recebimento Fiscal</h1>
+        <form method=\"POST\" action=\"gravar_recebimento.php\">
+        <input type=\"hidden\" id=\"id\" name=\"id\" value=\"$fornec->id\">
+        <input type=\"hidden\" id=\"nome_fantasia\" name=\"nome_fantasia\" value=\"$fornec->nome_fantasia\">
+        <input type=\"hidden\" id=\"documento\" name=\"documento\" value=\"$fornec->documento\">
+        <input type=\"hidden\" id=\"inscricao_estadual\" name=\"inscricao_estadual\" value=\"$fornec->inscricao_estadual\">
+        <input type=\"hidden\" id=\"telefone\" name=\"telefone\" value=\"$fornec->telefone\">            
+        <input type=\"hidden\" id=\"endereco\" name=\"endereco\" value=\"$fornec->endereco\">                
+        <input type=\"hidden\" id=\"endereco_numero\" name=\"endereco_numero\" value=\"$fornec->endereco_numero\">
+        <input type=\"hidden\" id=\"endereco_complemento\" name=\"endereco_complemento\" value=\"$fornec->endereco_complemento\">
+        <input type=\"hidden\" id=\"bairro\" name=\"bairro\" value=\"$fornec->bairro\">
+        <input type=\"hidden\" id=\"cep\" name=\"cep\" value=\"$fornec->cep\">
 
-
+        <div class=\"row\">
+            <div class=\"col-md-2\"></div>
+            <div class=\"col-md-8\">
+                <label for=\"ano\">Fornecedor</label>
+                <div class=\"form-group\">
+                    <input type='text' class=\"form-control\" id=\"fornecedor\" name=\"fornecedor\" value=\"$fornec->nome\"/>
+                </div>
+            </div>
+            <div class=\"col-md-2\"></div>
+        </div>
+        <div class=\"row\">
+            <div class=\"col-md-2\"></div>
+            <div class=\"col-md-8\">
+                <button type=\"submit\" class=\"btn btn-primary\">Submit</button>
+            </div>
+            <div class=\"col-md-2\"></div>
+        </div>
+        </form>";
+    $template = str_replace('{{ script }}', '', $template);
+    $template = str_replace('{{ container }}', $form, $template);
+    echo $template;
+    die;
+} else {
+    
+}
 
 
 //buscar categorias granatum
@@ -82,12 +156,3 @@ observacao	Observação do lançamento	Opcional
 itens_adicionais[]	Itens adicionais para criar lançamento composto	Opcional
  */
 
-function mask($mask, $str)
-{
-    $count = substr_count($mask, "#", 0, strlen($mask));
-    $str = str_replace(" ", "", $str);
-    for($i=0; $i < strlen($str); $i++){
-        $mask[strpos($mask,"#")] = $str[$i];
-    }
-    return $mask;
-}

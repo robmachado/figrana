@@ -2,6 +2,7 @@ APP_NAME=figrana
 APP_ENV=local
 APP_DEBUG=true
 APP_URL=http://localhost/figrana
+NFE_PATH=/var/www/nfe/producao/recebidas
 
 GRANATUM_TOKEN=
 GRANATUM_VERSION=v1

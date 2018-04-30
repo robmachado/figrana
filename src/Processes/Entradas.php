@@ -2,7 +2,6 @@
 
 namespace Figrana\Processes;
 
-
 use NFePHP\NFe\Common\Standardize;
 use Figrana\Aux\Strings;
 use Figrana\Processes\Parceiros;
@@ -10,10 +9,9 @@ use Carbon\Carbon;
 
 class Entradas
 {
-    protected $dups;
+    public $dups;
+    public $parceiros;
     protected $uf;
-    protected $parceiros;
-
 
     public function __construct()
     {
