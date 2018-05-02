@@ -43,7 +43,7 @@ if (empty($chave) && empty($id)) {
         <div class=\"row\">
             <div class=\"col-md-2\"></div>
             <div class=\"col-md-8\">
-                <label for=\"ano\">Chave NFe</label>
+                <label for=\"chave\">Chave NFe</label>
                 <div class=\"form-group\">
                     <input type='text' class=\"form-control\" id=\"chave\" name=\"chave\" />
                 </div>
@@ -69,8 +69,10 @@ if (empty($chave) && empty($id)) {
     
     $entra = new Entradas();
     $entra->read($std);
-    $fornec = $entra->parceiros->dados;
-    $dups = $entra->dups;
+    $fornec = json_decode($entra->parceiros->dados);
+    $fornec = $fornec[0];
+    $dups = json_decode(json_encode($entra->dups));
+    $competencia = $entra->competencia;
     
     $template = file_get_contents('template.html');
     $template = str_replace('{{ template_title }}', 'Recebimento Fiscal', $template);
@@ -78,27 +80,66 @@ if (empty($chave) && empty($id)) {
     $form = "<h1>Recebimento Fiscal</h1>
         <form method=\"POST\" action=\"gravar_recebimento.php\">
         <input type=\"hidden\" id=\"id\" name=\"id\" value=\"$fornec->id\">
-        <input type=\"hidden\" id=\"nome_fantasia\" name=\"nome_fantasia\" value=\"$fornec->nome_fantasia\">
-        <input type=\"hidden\" id=\"documento\" name=\"documento\" value=\"$fornec->documento\">
-        <input type=\"hidden\" id=\"inscricao_estadual\" name=\"inscricao_estadual\" value=\"$fornec->inscricao_estadual\">
-        <input type=\"hidden\" id=\"telefone\" name=\"telefone\" value=\"$fornec->telefone\">            
-        <input type=\"hidden\" id=\"endereco\" name=\"endereco\" value=\"$fornec->endereco\">                
-        <input type=\"hidden\" id=\"endereco_numero\" name=\"endereco_numero\" value=\"$fornec->endereco_numero\">
-        <input type=\"hidden\" id=\"endereco_complemento\" name=\"endereco_complemento\" value=\"$fornec->endereco_complemento\">
-        <input type=\"hidden\" id=\"bairro\" name=\"bairro\" value=\"$fornec->bairro\">
-        <input type=\"hidden\" id=\"cep\" name=\"cep\" value=\"$fornec->cep\">
-
         <div class=\"row\">
             <div class=\"col-md-2\"></div>
-            <div class=\"col-md-8\">
-                <label for=\"ano\">Fornecedor</label>
+            <div class=\"col-md-3\">
+                <label for=\"fonecedor\">Fornecedor</label>
                 <div class=\"form-group\">
                     <input type='text' class=\"form-control\" id=\"fornecedor\" name=\"fornecedor\" value=\"$fornec->nome\"/>
                 </div>
             </div>
+            <div class=\"col-md-3\">
+                <label for=\"categoria\">Categoria</label>
+                <div class=\"form-group\">
+                    <select class=\"selectpicker\" id=\"categoria\" name=\"categoria\">
+                        <optgroup label=\"Picnic\">
+                            <option>Mustard</option>
+                            <option>Ketchup</option>
+                            <option>Relish</option>
+                        </optgroup>
+                        <optgroup label=\"Camping\">
+                            <option>Tent</option>
+                            <option>Flashlight</option>
+                            <option>Toilet Paper</option>
+                        </optgroup>
+                    </select>
+                </div>
+            </div>
+            <div class=\"col-md-3\">
+                <label for=\"competencia\">Competencia</label>
+                <div class=\"form-group\">
+                    <input type='text' class=\"form-control\" id=\"competencia\" name=\"competencia\" value=\"$competencia\"/>
+                </div>
+            </div>
             <div class=\"col-md-2\"></div>
-        </div>
-        <div class=\"row\">
+        </div>";
+    
+    foreach ($dups as $dup) {
+    $form .= "<div class=\"row\">
+            <div class=\"col-md-2\"></div>
+            <div class=\"col-md-3\">
+                <label for=\"desc\">Descrição</label>
+                <div class=\"form-group\">
+                    <input type='text' class=\"form-control\" id=\"desc[]\" name=\"desc[]\" value=\"$dup->descricao\"/>
+                </div>
+            </div>
+            <div class=\"col-md-3\">
+                <label for=\"valor\">Valor</label>
+                <div class=\"form-group\">
+                    <input type='text' class=\"form-control\" id=\"valor[]\" name=\"valor[]\" value=\"$dup->valor\"/>
+                </div>
+            </div>
+            <div class=\"col-md-3\">
+                <label for=\"venc\">Vencimento</label>
+                <div class=\"form-group\">
+                    <input type='text' class=\"form-control\" id=\"venc[]\" name=\"venc[]\" value=\"$dup->data_vencimento\"/>
+                </div>
+            </div>
+            <div class=\"col-md-1\"></div>
+        </div>";
+    }
+    
+    $form .= "<div class=\"row\">
             <div class=\"col-md-2\"></div>
             <div class=\"col-md-8\">
                 <button type=\"submit\" class=\"btn btn-primary\">Submit</button>

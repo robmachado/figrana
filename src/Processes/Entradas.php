@@ -5,18 +5,29 @@ namespace Figrana\Processes;
 use NFePHP\NFe\Common\Standardize;
 use Figrana\Aux\Strings;
 use Figrana\Processes\Parceiros;
+use Figrana\Processes\Cidades;
 use Carbon\Carbon;
 
 class Entradas
 {
     public $dups;
     public $parceiros;
+    public $competencia;
     protected $uf;
+    protected $cidades;
+    protected $conn;
+
 
     public function __construct()
     {
+        $token = $_ENV['GRANATUM_TOKEN'];
+        $version = $_ENV['GRANATUM_VERSION'];
+        $uri = $_ENV['GRANATUM_URI'];
+        $this->conn = new Connector($token, $version, $uri);
         $this->parceiros = new Parceiros();
+        $this->cidades = new Cidades();
         $this->getEstados();
+        
     }
     
     public function read($std)
@@ -25,8 +36,12 @@ class Entradas
         if ($cnpj == '58716523000119') {
             return [];
         }
+        $uf = $std->NFe->infNFe->emit->enderEmit->UF;
+        $xmun = $std->NFe->infNFe->emit->enderEmit->xMun;
+        $estado_id = $this->uf[$uf];
+        $cidade_id = $this->cidades->find($estado_id, $xmun);
         $dt = Carbon::createFromFormat('Y-m-d\TH:i:sP', $std->NFe->infNFe->ide->dhEmi);
-        $competencia = $dt->format('Y-m-d');
+        $this->competencia = $dt->format('Y-m-d');
         $data = [
             'nome' => $std->NFe->infNFe->emit->xNome,
             'nome_fantasia' => !empty($std->NFe->infNFe->emit->xFant) ? $std->NFe->infNFe->emit->xFant : null,
@@ -37,27 +52,28 @@ class Entradas
             'endereco_numero' => $std->NFe->infNFe->emit->enderEmit->nro,
             'endereco_complemento' => !empty($std->NFe->infNFe->emit->enderEmit->xCpl) ? $std->NFe->infNFe->emit->enderEmit->xCpl : null,
             'bairro' => $std->NFe->infNFe->emit->enderEmit->xBairro,
-            'cep' => Strings::mask("#####-###", $std->NFe->infNFe->emit->enderEmit->CEP)
+            'cep' => Strings::mask("#####-###", $std->NFe->infNFe->emit->enderEmit->CEP),
+            'estado_id' => $estado_id,
+            'cidade_id' => $cidade_id
         ];
         $id = $this->parceiros->findOrAdd($data, 'F');
         
         $cobr = $std->NFe->infNFe->cobr;
-        $nDup = count($std->NFe->infNFe->cobr->dup);
+        $n = count($std->NFe->infNFe->cobr->dup);
+        if ($n == 1) {
+            $this->dups[] = [
+                'descricao' => $dup->nDup,
+                'valor' => -1 * $dup->vDup,
+                'data_vencimento' => $dup->dVenc
+            ];
+        } else {
         foreach ($std->NFe->infNFe->cobr->dup as $dup) {
             $this->dups[] = [
-                'descricao' => '',
-                'conta_id' => 0,
-                'categoria_id' => 0,
-                'valor' => $dup->vDup,
-                'data_vencimento' => $dup->dVenc,
-                'data_pagamento' => null,
-                'data_competencia' => $competencia,
-                'centro_custo_lucro_id' => null,
-                'forma_pagamento_id' => null, //duplicata
-                'pessoa_id' => $id,
-                'tipo_documento_id', 
-                'observacao' => null
+                'descricao' => $dup->nDup,
+                'valor' => -1 * $dup->vDup,
+                'data_vencimento' => $dup->dVenc
             ];
+        }
         }
         
     }
@@ -68,7 +84,14 @@ class Entradas
      */
     public function categorias()
     {
+        $cats = json_decode(Granatum::categorias($this->conn)->all());
         
+    foreach ($cats as $cat) {
+        if (count($cat->caterorias_filhas) > 0) {
+            //é <optgroup label=\"Picnic\">
+            
+        }
+    }
     }
     
     protected function getEstados()
