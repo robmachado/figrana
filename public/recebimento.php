@@ -8,6 +8,7 @@ use NFePHP\NFe\Common\Standardize;
 use ApiGranatum\Granatum;
 use ApiGranatum\Connector;
 use Figrana\Processes\Entradas;
+use Figrana\Processes\Lancamentos;
 use Figrana\NFe\Seek;
 
 /* 
@@ -30,12 +31,18 @@ use Figrana\NFe\Seek;
  */
 
 $chave = !empty($_POST['chave']) ? $_POST['chave'] : null;
-$id = !empty($_POST['id']) ? $_POST['id'] : null;
+$pessoaid = !empty($_POST['id']) ? $_POST['id'] : null;
+$fornecedor = !empty($_POST['fornecedor']) ? $_POST['fornecedor'] : null;
+$categoria = !empty($_POST['categoria']) ? $_POST['categoria'] : null;
+$competencia = !empty($_POST['competencia']) ? $_POST['competencia'] : null;
+$dupdesc  = !empty($_POST['dupdesc']) ? $_POST['dupdesc'] : null;
+$dupvalor  = !empty($_POST['dupvalor']) ? $_POST['dupvalor'] : null;
+$dupvenc  = !empty($_POST['dupvenc']) ? $_POST['dupvenc'] : null;
 
 //$chave = "35180404728183000117550000008689871927943207";
 //$chave = "35180415179682002243550010002061521770468448";
 
-if (empty($chave) && empty($id)) {
+if (empty($chave) && empty($pessoaid)) {
     $template = file_get_contents('template.html');
     $template = str_replace('{{ template_title }}', 'Recebimento Fiscal', $template);
     $form = "<h1>Recebimento Fiscal</h1>
@@ -62,24 +69,34 @@ if (empty($chave) && empty($id)) {
     $template = str_replace('{{ container }}', $form, $template);
     echo $template;
     die;
-} elseif (!empty($chave) && empty($id)) {
+} elseif (!empty($chave) && empty($pessoaid)) {
     $chave = preg_replace("/[^0-9]/", "", $chave);
     $see = new Seek();
     $std = $see->getStd($chave);
-    
-    $entra = new Entradas();
+    if (empty($std)) {
+        echo "NFe não localizada.";
+        die;
+    }
+    $lanc = new Lancamentos();
+    if ($lanc->find($chave)) {
+        echo "NFe já lançada no sistema.";
+        die;
+    }
+    $entra = new Entradas();    
     $entra->read($std);
     $fornec = json_decode($entra->parceiros->dados);
     $fornec = $fornec[0];
     $dups = json_decode(json_encode($entra->dups));
     $competencia = $entra->competencia;
+    $selCategorias = str_replace('', '', $entra->categorias());
     
     $template = file_get_contents('template.html');
     $template = str_replace('{{ template_title }}', 'Recebimento Fiscal', $template);
     
     $form = "<h1>Recebimento Fiscal</h1>
-        <form method=\"POST\" action=\"gravar_recebimento.php\">
+        <form method=\"POST\" action=\"recebimento.php\">
         <input type=\"hidden\" id=\"id\" name=\"id\" value=\"$fornec->id\">
+        <input type=\"hidden\" id=\"chave\" name=\"chave\" value=\"$chave\">
         <div class=\"row\">
             <div class=\"col-md-2\"></div>
             <div class=\"col-md-3\">
@@ -91,18 +108,7 @@ if (empty($chave) && empty($id)) {
             <div class=\"col-md-3\">
                 <label for=\"categoria\">Categoria</label>
                 <div class=\"form-group\">
-                    <select class=\"selectpicker\" id=\"categoria\" name=\"categoria\">
-                        <optgroup label=\"Picnic\">
-                            <option>Mustard</option>
-                            <option>Ketchup</option>
-                            <option>Relish</option>
-                        </optgroup>
-                        <optgroup label=\"Camping\">
-                            <option>Tent</option>
-                            <option>Flashlight</option>
-                            <option>Toilet Paper</option>
-                        </optgroup>
-                    </select>
+                    $selCategorias
                 </div>
             </div>
             <div class=\"col-md-3\">
@@ -115,24 +121,24 @@ if (empty($chave) && empty($id)) {
         </div>";
     
     foreach ($dups as $dup) {
-    $form .= "<div class=\"row\">
+        $form .= "<div class=\"row\">
             <div class=\"col-md-2\"></div>
             <div class=\"col-md-3\">
                 <label for=\"desc\">Descrição</label>
                 <div class=\"form-group\">
-                    <input type='text' class=\"form-control\" id=\"desc[]\" name=\"desc[]\" value=\"$dup->descricao\"/>
+                    <input type='text' class=\"form-control\" id=\"dupdesc[]\" name=\"dupdesc[]\" value=\"$dup->descricao\"/>
                 </div>
             </div>
             <div class=\"col-md-3\">
                 <label for=\"valor\">Valor</label>
                 <div class=\"form-group\">
-                    <input type='text' class=\"form-control\" id=\"valor[]\" name=\"valor[]\" value=\"$dup->valor\"/>
+                    <input type='text' class=\"form-control\" id=\"dupvalor[]\" name=\"dupvalor[]\" value=\"$dup->valor\"/>
                 </div>
             </div>
             <div class=\"col-md-3\">
                 <label for=\"venc\">Vencimento</label>
                 <div class=\"form-group\">
-                    <input type='text' class=\"form-control\" id=\"venc[]\" name=\"venc[]\" value=\"$dup->data_vencimento\"/>
+                    <input type='text' class=\"form-control\" id=\"dupvenc[]\" name=\"dupvenc[]\" value=\"$dup->data_vencimento\"/>
                 </div>
             </div>
             <div class=\"col-md-1\"></div>
@@ -152,7 +158,37 @@ if (empty($chave) && empty($id)) {
     echo $template;
     die;
 } else {
+    $lanc = new Lancamentos();
+    //fazer o lançamento
+    $alanc = [];
+    $i = 0;
+    //echo "<pre>";
+    //print_r($dupvalor);
+    //echo "</pre>";
+    //die;
     
+    foreach ($dupvalor as $valor) {
+        $alanc[] = [
+            'conta_id' => '64462', //carteira
+            'categoria_id' => $categoria,
+            'descricao' => 'Duplicata '. $dupdesc[$i],
+            'centro_custo_lucro_id' => '96107', //producao
+            'tipo_custo_nivel_producao_id' => 2, //custo variável
+            'tipo_custo_apropriacao_produto_id' => 1, //custo direto
+            'valor' => -1 * $valor,
+            'data_vencimento' => $dupvenc[$i],
+            'data_competencia' => $competencia,
+            'pessoa_id' => 	$pessoaid,
+            'tipo_documento_id' => '137283', //NF
+            'observacao' => $fornecedor
+        ];
+        $i++;
+    }
+
+    
+    $lanc->save($chave, $alanc);
+    header("Refresh: 3; url=recebimento.php");
+    echo 'Sucesso!!!';
 }
 
 

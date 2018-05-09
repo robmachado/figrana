@@ -6,7 +6,12 @@ use NFePHP\NFe\Common\Standardize;
 use Figrana\Aux\Strings;
 use Figrana\Processes\Parceiros;
 use Figrana\Processes\Cidades;
+use ApiGranatum\Connector;
+use ApiGranatum\Granatum;
+use ApiGranatum\Factories\Lancamentos;
 use Carbon\Carbon;
+use DOMDocument;
+use Figrana\DBase;
 
 class Entradas
 {
@@ -16,7 +21,8 @@ class Entradas
     protected $uf;
     protected $cidades;
     protected $conn;
-
+    protected $db;
+    protected $dbh;
 
     public function __construct()
     {
@@ -24,12 +30,13 @@ class Entradas
         $version = $_ENV['GRANATUM_VERSION'];
         $uri = $_ENV['GRANATUM_URI'];
         $this->conn = new Connector($token, $version, $uri);
-        $this->parceiros = new Parceiros();
-        $this->cidades = new Cidades();
+        $this->parceiros = new Parceiros($this->conn);
+        $this->cidades = new Cidades($this->conn);
         $this->getEstados();
-        
+        $this->db = new DBase('MYSQL', 'localhost', '', 'figrana');
+        $this->dbh = $this->db->connect('root', 'monitor5');
     }
-    
+   
     public function read($std)
     {
         $cnpj = $std->NFe->infNFe->emit->CNPJ;
@@ -62,18 +69,18 @@ class Entradas
         $n = count($std->NFe->infNFe->cobr->dup);
         if ($n == 1) {
             $this->dups[] = [
-                'descricao' => $dup->nDup,
-                'valor' => -1 * $dup->vDup,
-                'data_vencimento' => $dup->dVenc
+                'descricao' => $std->NFe->infNFe->cobr->dup->nDup,
+                'valor' => number_format($std->NFe->infNFe->cobr->dup->vDup, 2, '.', ''),
+                'data_vencimento' => $std->NFe->infNFe->cobr->dup->dVenc
             ];
         } else {
-        foreach ($std->NFe->infNFe->cobr->dup as $dup) {
-            $this->dups[] = [
-                'descricao' => $dup->nDup,
-                'valor' => -1 * $dup->vDup,
-                'data_vencimento' => $dup->dVenc
-            ];
-        }
+            foreach ($std->NFe->infNFe->cobr->dup as $dup) {
+                $this->dups[] = [
+                    'descricao' => $dup->nDup,
+                    'valor' => number_format($dup->vDup, 2, '.', ''),
+                    'data_vencimento' => $dup->dVenc
+                ];
+            }
         }
         
     }
@@ -84,14 +91,52 @@ class Entradas
      */
     public function categorias()
     {
-        $cats = json_decode(Granatum::categorias($this->conn)->all());
-        
-    foreach ($cats as $cat) {
-        if (count($cat->caterorias_filhas) > 0) {
-            //é <optgroup label=\"Picnic\">
-            
-        }
+        $std = json_decode(Granatum::categorias($this->conn)->all());
+        return $this->selGroup($std);
     }
+    
+    protected function selGroup($std)
+    {
+        if (empty($dom)) {
+            $dom = new DOMDocument("1.0", "UTF-8");
+            $dom->formatOutput = false;
+            $dom->preserveWhiteSpace = false;
+            $node = $dom->createElement('select');
+            $node->setAttribute('class', 'selectpicker');
+            $node->setAttribute('id', 'categoria');
+            $node->setAttribute('name', 'categoria');
+        }
+        foreach($std as $cat) {
+            if (!empty($cat->categorias_filhas)) {
+                $group = $dom->createElement('optgroup');
+                $group->setAttribute('label', $cat->descricao);
+                foreach($cat->categorias_filhas as $child) {
+                    if (!empty($child->categorias_filhas)) {
+                        $group1 = $dom->createElement('optgroup');
+                        $group1->setAttribute('label', $child->descricao);
+                        foreach($child->categorias_filhas as $granchild) {
+                            $elem = $dom->createElement('option', $granchild->descricao);
+                            $elem->setAttribute('value', $granchild->id);
+                            $group1->appendChild($elem);
+                        }
+                    } else {
+                        $elem = $dom->createElement('option', $child->descricao);
+                        $elem->setAttribute('value', $child->id);
+                        $group->appendChild($elem);
+                    }
+                }
+                if (!empty($group1)) {
+                    $group->appendChild($group1);
+                }    
+            } else {
+                $elem = $dom->createElement('option', $cat->descricao);
+                $elem->setAttribute('value', $cat->id);
+                $node->appendChild($elem);
+            }
+            $node->appendChild($group);
+        }
+        $dom->appendChild($node);
+        return $dom->saveXML($node);
     }
     
     protected function getEstados()
@@ -102,8 +147,6 @@ class Entradas
             $this->uf[$uf->sigla] = $uf->id;
         }
     }
-    
-    
     
     public function fornecedor(array $fornecedor)
     {

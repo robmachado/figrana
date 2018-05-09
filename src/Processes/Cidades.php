@@ -11,12 +11,15 @@ class Cidades
     private $conn;
     public $dados;
     
-    public function __construct()
+    public function __construct(Connector $conn = null)
     {
-        $token = $_ENV['GRANATUM_TOKEN'];
-        $version = $_ENV['GRANATUM_VERSION'];
-        $uri = $_ENV['GRANATUM_URI'];
-        $this->conn = new Connector($token, $version, $uri);
+        if (empty($conn)) {
+            $token = $_ENV['GRANATUM_TOKEN'];
+            $version = $_ENV['GRANATUM_VERSION'];
+            $uri = $_ENV['GRANATUM_URI'];
+            $conn = new Connector($token, $version, $uri);
+        }
+        $this->conn = $conn;
     }
     
     public function find($estado_id, $nome)
