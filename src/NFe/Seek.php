@@ -36,4 +36,17 @@ class Seek
         //die;
         return $std;
     }
+    
+    public function listFiles($subpath)
+    {
+        $contents = $this->filesystem->listContents($subpath, false);
+        $resp = [];
+        foreach($contents as $c) {
+            $c = json_decode(json_encode($c));
+            if ($c->type == 'file' && $c->extension == 'xml') {
+                $resp[] = $c->basename;
+            } 
+        }
+        return $resp;
+    }
 }

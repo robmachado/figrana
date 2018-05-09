@@ -32,8 +32,8 @@
 
 ; nano /var/www/figrana/jobs/job_rsync_nfe.sh
 #! /bin/bash
-rsync -avz -e 'ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null' root@192.168.0.2:/var/www/nfe/ /var/nfe
-chmod -R 777 /var/nfe
+rsync -avz -e 'ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null' root@192.168.0.2:/var/www/nfe/ /var/www/nfe
+chmod -R 777 /var/www/nfe
 
 ## Criar CRON JOB que será executado a cada 5 minutos (SERVIDOR DESTINO)
 ; Usar o WEBMIN ou 
