@@ -20,7 +20,7 @@ class Saidas
     public $competencia;
     protected $uf;
     protected $cidades;
-    protected $conn;
+    public $conn;
     protected $dbmsql;
     protected $dbhmsql;
     protected $db;
@@ -64,23 +64,23 @@ class Saidas
         if ($cnpj != '58716523000119') {
             return [];
         }
-        $uf = $std->NFe->infNFe->emit->enderEmit->UF;
-        $xmun = $std->NFe->infNFe->emit->enderEmit->xMun;
+        $uf = $std->NFe->infNFe->dest->enderDest->UF;
+        $xmun = $std->NFe->infNFe->dest->enderDest->xMun;
         $estado_id = $this->uf[$uf];
         $cidade_id = $this->cidades->find($estado_id, $xmun);
         $dt = Carbon::createFromFormat('Y-m-d\TH:i:sP', $std->NFe->infNFe->ide->dhEmi);
         $this->competencia = $dt->format('Y-m-d');
         $data = [
-            'nome' => $std->NFe->infNFe->emit->xNome,
-            'nome_fantasia' => !empty($std->NFe->infNFe->emit->xFant) ? $std->NFe->infNFe->emit->xFant : null,
-            'documento' => !empty($std->NFe->infNFe->emit->CNPJ) ? $std->NFe->infNFe->emit->CNPJ : $std->NFe->infNFe->emit->CPF,
-            'inscricao_estadual' => $std->NFe->infNFe->emit->IE,
-            'telefone' => !empty($std->NFe->infNFe->emit->enderEmit->fone) ? $std->NFe->infNFe->emit->enderEmit->fone : null,
-            'endereco' => $std->NFe->infNFe->emit->enderEmit->xLgr,
-            'endereco_numero' => $std->NFe->infNFe->emit->enderEmit->nro,
-            'endereco_complemento' => !empty($std->NFe->infNFe->emit->enderEmit->xCpl) ? $std->NFe->infNFe->emit->enderEmit->xCpl : null,
-            'bairro' => $std->NFe->infNFe->emit->enderEmit->xBairro,
-            'cep' => Strings::mask("#####-###", $std->NFe->infNFe->emit->enderEmit->CEP),
+            'nome' => $std->NFe->infNFe->dest->xNome,
+            'nome_fantasia' => !empty($std->NFe->infNFe->dest->xNome) ? $std->NFe->infNFe->dest->xNome : null,
+            'documento' => !empty($std->NFe->infNFe->dest->CNPJ) ? $std->NFe->infNFe->dest->CNPJ : $std->NFe->infNFe->emit->CPF,
+            'inscricao_estadual' => !empty($std->NFe->infNFe->dest->IE) ? $std->NFe->infNFe->dest->IE : '',
+            'telefone' => !empty($std->NFe->infNFe->dest->enderDest->fone) ? $std->NFe->infNFe->dest->enderDest->fone : null,
+            'endereco' => $std->NFe->infNFe->dest->enderDest->xLgr,
+            'endereco_numero' => $std->NFe->infNFe->dest->enderDest->nro,
+            'endereco_complemento' => !empty($std->NFe->infNFe->dest->enderDest->xCpl) ? $std->NFe->infNFe->dest->enderDest->xCpl : null,
+            'bairro' => $std->NFe->infNFe->dest->enderDest->xBairro,
+            'cep' => Strings::mask("#####-###", $std->NFe->infNFe->dest->enderDest->CEP),
             'estado_id' => $estado_id,
             'cidade_id' => $cidade_id
         ];
@@ -122,14 +122,10 @@ class Saidas
         $num = number_format($nNF + 100000, 0, '', '.'); 
         $sqlComm = "SELECT DISTINCT status from notas_fiscais_produtos where num_nf = '$num';";
         $resp = $this->dbmsql->querySQL($this->dbhmsql, $sqlComm);
-        echo "<pre>";
-        print_r($resp);
-        echo "</pre>";
-        
         if (empty($resp)) {
-            return false;
+            return 0;
         }
-        return true;
+        return $resp[0][0];
     }
     
     protected function getEstados()

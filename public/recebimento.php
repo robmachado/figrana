@@ -10,6 +10,13 @@ use ApiGranatum\Connector;
 use Figrana\Processes\Entradas;
 use Figrana\Processes\Lancamentos;
 use Figrana\NFe\Seek;
+use Monolog\Logger;
+use Monolog\Handler\StreamHandler;
+
+$logger = new Logger('Figrana');
+$logger->pushHandler(
+    new StreamHandler(__DIR__ . "/../storage/recebimentos.log", Logger::WARNING)
+);
 
 /* 
  * Entrada de NFe fornecedores
@@ -38,9 +45,6 @@ $competencia = !empty($_POST['competencia']) ? $_POST['competencia'] : null;
 $dupdesc  = !empty($_POST['dupdesc']) ? $_POST['dupdesc'] : null;
 $dupvalor  = !empty($_POST['dupvalor']) ? $_POST['dupvalor'] : null;
 $dupvenc  = !empty($_POST['dupvenc']) ? $_POST['dupvenc'] : null;
-
-//$chave = "35180404728183000117550000008689871927943207";
-//$chave = "35180415179682002243550010002061521770468448";
 
 if (empty($chave) && empty($pessoaid)) {
     $template = file_get_contents('template.html');
@@ -85,7 +89,6 @@ if (empty($chave) && empty($pessoaid)) {
     $entra = new Entradas();    
     $entra->read($std);
     $fornec = json_decode($entra->parceiros->dados);
-    $fornec = $fornec[0];
     $dups = json_decode(json_encode($entra->dups));
     $competencia = $entra->competencia;
     $selCategorias = str_replace('', '', $entra->categorias());
@@ -158,15 +161,9 @@ if (empty($chave) && empty($pessoaid)) {
     echo $template;
     die;
 } else {
-    $lanc = new Lancamentos();
-    //fazer o lançamento
+    $lanc = new Lancamentos(null, $logger);
     $alanc = [];
     $i = 0;
-    //echo "<pre>";
-    //print_r($dupvalor);
-    //echo "</pre>";
-    //die;
-    
     foreach ($dupvalor as $valor) {
         $alanc[] = [
             'conta_id' => '64462', //carteira
@@ -184,8 +181,6 @@ if (empty($chave) && empty($pessoaid)) {
         ];
         $i++;
     }
-
-    
     $lanc->save($chave, $alanc);
     header("Refresh: 3; url=recebimento.php");
     echo 'Sucesso!!!';

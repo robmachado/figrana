@@ -6,14 +6,17 @@ use Figrana\DBase;
 use ApiGranatum\Granatum;
 use ApiGranatum\Connector;
 use ApiGranatum\Factories\Lancamentos as ApiLanc;
+use Monolog\Logger;
+use Monolog\Handler\StreamHandler;
 
 class Lancamentos
 {
-    protected $conn;
+    public $conn;
     protected $db;
     protected $dbh;
+    protected $logger;
 
-    public function __construct(Connector $conn = null)
+    public function __construct(Connector $conn = null, Logger $logger = null)
     {
         if (empty($conn)) {
             $token = $_ENV['GRANATUM_TOKEN'];
@@ -32,6 +35,9 @@ class Lancamentos
             $_ENV['DB1_USERNAME'],
             $_ENV['DB1_PASSWORD']
         );
+        if (!empty($logger)) {
+            $this->logger = $logger;
+        } 
     }
     
     public function find($chave)
@@ -47,23 +53,27 @@ class Lancamentos
     {
         $data = date('Y-m-d H:i:s');
         //gravar na base
+        $this->db->beginTrans($this->dbh);
         $sqlComm = "INSERT INTO lancamentos (chave, created_at) VALUES ("
                 . "'$chave',"
                 . "'$data');";
         if (!$this->db->execSQL($this->dbh, $sqlComm)) {
-            echo "Falha na gravação na base de dados";
-            die;
+            $this->logger->error('Falha na gravação na base de dados');
+            return false;    
         }
+        
         //gravar no granatum
         $lanc = new ApiLanc($this->conn);
         foreach ($dados as $d) {
             $resp = $lanc->add($d);
             $std = json_decode($resp);
             if (empty($std->id)) {
-                echo "ERRO $resp";
-                die;
+                $this->logger->error('ERRO $resp');
+                $this->db->rollbackTrans($this->dbh);
+                return false;
             }
-        }    
+        }
+        $this->db->commitTrans($this->dbh);
         return true;
     }
     

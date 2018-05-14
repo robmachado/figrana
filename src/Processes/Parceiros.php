@@ -10,7 +10,7 @@ class Parceiros
     const FORNECEDOR = 'F';
     const CLIENTE = 'C';
     
-    private $conn;
+    public $conn;
     public $dados;
     
     public function __construct(Connector $conn = null)
@@ -40,13 +40,13 @@ class Parceiros
             //não localizado então incluir
             $resp = $parceiro->add($data);
         }
-        $this->dados = $resp;
         $std = json_decode($resp);
         if (!empty($std)) {
            if (is_array($std)) {
                $std = $std[0];
            }
            if (!empty($std->id)) {
+               $this->dados = json_encode($std);
                return $std->id;
            }
        }

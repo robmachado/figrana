@@ -8,7 +8,7 @@ use NFePHP\Common\Strings as StrCommon;
 
 class Cidades 
 {
-    private $conn;
+    public $conn;
     public $dados;
     
     public function __construct(Connector $conn = null)

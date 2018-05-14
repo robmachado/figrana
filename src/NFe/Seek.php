@@ -30,10 +30,6 @@ class Seek
         $xml = $this->filesystem->read($path);
         $s = new Standardize($xml);
         $std = $s->toStd();
-        //echo "<pre>";
-        //print_r($std);
-        //echo "<pre>";
-        //die;
         return $std;
     }
     

@@ -20,7 +20,7 @@ class Entradas
     public $competencia;
     protected $uf;
     protected $cidades;
-    protected $conn;
+    public $conn;
     protected $db;
     protected $dbh;
 
