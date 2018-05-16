@@ -130,7 +130,7 @@ class Saidas
     
     protected function getEstados()
     {
-        $ufs = file_get_contents('../storage/estados.json');
+        $ufs = file_get_contents(__DIR__ . '/../../storage/estados.json');
         $std = json_decode($ufs);
         foreach($std as $uf) {
             $this->uf[$uf->sigla] = $uf->id;

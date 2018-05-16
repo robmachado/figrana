@@ -7,6 +7,8 @@
 -- Versão do servidor: 5.5.60-0ubuntu0.14.04.1
 -- PHP Version: 7.0.30-1+ubuntu14.04.1+deb.sury.org+1
 
+use figrana;
+
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET time_zone = "+00:00";
 
