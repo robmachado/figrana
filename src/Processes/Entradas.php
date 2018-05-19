@@ -66,7 +66,13 @@ class Entradas
         $id = $this->parceiros->findOrAdd($data, 'F');
         
         $cobr = $std->NFe->infNFe->cobr;
-        $n = count($std->NFe->infNFe->cobr->dup);
+        if (!empty($std->NFe->infNFe->cobr->dup)) {
+            if (is_array($std->NFe->infNFe->cobr->dup)) {
+                $n = count($std->NFe->infNFe->cobr->dup);
+            } else {
+                $n = 1;
+            }
+        }    
         if ($n == 1) {
             $this->dups[] = [
                 'descricao' => $std->NFe->infNFe->cobr->dup->nDup,
