@@ -177,6 +177,7 @@ if (empty($chave) && empty($pessoaid)) {
             'data_competencia' => $competencia,
             'pessoa_id' => 	$pessoaid,
             'tipo_documento_id' => '137283', //NF
+            'forma_pagamento_id' => '288361', //Duplicatas
             'observacao' => $fornecedor
         ];
         $i++;

@@ -5,3 +5,4 @@ local
 vendor
 composer.lock
 .env
+*.log
