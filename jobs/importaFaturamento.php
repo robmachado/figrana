@@ -36,8 +36,7 @@ foreach ($resp as $file) {
     echo "$chave ";
     $di = Carbon::now();
     $std = $seek->getStd($chave);
-    //verificar se tem cobrança
-    //se não continue 
+    //verificar se tem cobrança, se tem não continue 
     if (empty($std->NFe->infNFe->cobr)) {
         echo "\n";
         continue;
