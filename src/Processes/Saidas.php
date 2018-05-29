@@ -87,11 +87,7 @@ class Saidas
             'cidade_id' => $cidade_id
         ];
         $id = $this->parceiros->findOrAdd($data, 'C');
-        
-        $cobr = $std->NFe->infNFe->cobr;
-        $n = count($std->NFe->infNFe->cobr->dup);
-        
-        if ($n == 1) {
+        if (!is_array($std->NFe->infNFe->cobr->dup)) {
             $this->dups[] = [
                 'descricao' => "[$nnf] Dup. " . $std->NFe->infNFe->cobr->dup->nDup,
                 'valor' => number_format($std->NFe->infNFe->cobr->dup->vDup, 2, '.', ''),
