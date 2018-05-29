@@ -22,7 +22,6 @@ $logger->pushHandler(
 );
 
 $anomes = date('Ym');
-//$path = "/var/www/nfe/producao/enviadas/aprovadas";
 $path = realpath($_ENV['NFE_PATH'] .'/../enviadas/aprovadas');
 $seek = new Seek($path);
 $resp = $seek->listFiles($anomes);
@@ -30,7 +29,6 @@ $resp = $seek->listFiles($anomes);
 $saidas = new Saidas();
 $lanc = new Lancamentos($saidas->conn, $logger);
 
-$i = 0;
 foreach ($resp as $file) {
     $chave = preg_replace("/[^0-9]/", "",$file);
     echo "$chave <br>";
@@ -94,20 +92,10 @@ foreach ($resp as $file) {
             ];
         }
     }
-    echo "<pre>";
-    print_r($alanc);
-    echo "</pre>";
-    /*
     if ($lanc->save($chave, $alanc)) {
         $logger->warning("SUCESSO ... $chave -> gravada.");
     }
-     * 
-     */
     $df = Carbon::now();
-    //sleep(2);
+    sleep(1);
     echo " [" . $di->diffInSeconds($df) . "] \n"; 
-    $i++;
-    if($i > 50) {
-        die;
-    }
 }
