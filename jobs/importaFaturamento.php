@@ -22,8 +22,8 @@ $logger->pushHandler(
 );
 
 $anomes = date('Ym');
-$path = "/var/www/nfe/producao/enviadas/aprovadas";
-
+//$path = "/var/www/nfe/producao/enviadas/aprovadas";
+$path = realpath($_ENV['NFE_PATH'] .'/../enviadas/aprovadas');
 $seek = new Seek($path);
 $resp = $seek->listFiles($anomes);
 
