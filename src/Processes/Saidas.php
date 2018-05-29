@@ -64,6 +64,7 @@ class Saidas
         if ($cnpj != '58716523000119') {
             return [];
         }
+        $this->dups = [];
         $uf = $std->NFe->infNFe->dest->enderDest->UF;
         $xmun = $std->NFe->infNFe->dest->enderDest->xMun;
         $estado_id = $this->uf[$uf];
@@ -87,7 +88,12 @@ class Saidas
         $id = $this->parceiros->findOrAdd($data, 'C');
         
         $cobr = $std->NFe->infNFe->cobr;
-        $n = count($std->NFe->infNFe->cobr->dup);
+        if (!empty($std->NFe->infNFe->cobr->dup)) {
+             if (is_array($std->NFe->infNFe->cobr->dup)) {
+                 $n = count($std->NFe->infNFe->cobr->dup);
+             }
+        }
+        
         if ($n == 1) {
             $this->dups[] = [
                 'descricao' => $std->NFe->infNFe->cobr->dup->nDup,

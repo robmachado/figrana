@@ -32,9 +32,9 @@ $lanc = new Lancamentos($saidas->conn, $logger);
 
 foreach ($resp as $file) {
     $chave = preg_replace("/[^0-9]/", "",$file);
-    $alanc = [];
     echo "$chave ";
     $di = Carbon::now();
+    $std = null;
     $std = $seek->getStd($chave);
     //verificar se tem cobrança, se tem não continue 
     if (empty($std->NFe->infNFe->cobr)) {
@@ -55,13 +55,12 @@ foreach ($resp as $file) {
         echo "\n";
         continue;
     }
-    
     $saidas->read($std);
-    
     $cliente = json_decode($saidas->parceiros->dados);
     $pessoaid = $cliente->id;
     $competencia = $saidas->competencia;
     $dups = json_decode(json_encode($saidas->dups));
+    $alanc = [];
     foreach ($dups as $dup) {
         //790286 venda de serviços
         //790285 vendas de produtos
