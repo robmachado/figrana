@@ -59,6 +59,7 @@ class Lancamentos
                 . "'$data');";
         if (!$this->db->execSQL($this->dbh, $sqlComm)) {
             $this->logger->error('Falha na gravação na base de dados');
+            $this->db->rollbackTrans($this->dbh);
             return false;    
         }
         

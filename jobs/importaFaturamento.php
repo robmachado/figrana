@@ -30,9 +30,10 @@ $resp = $seek->listFiles($anomes);
 $saidas = new Saidas();
 $lanc = new Lancamentos($saidas->conn, $logger);
 
+$i = 0;
 foreach ($resp as $file) {
     $chave = preg_replace("/[^0-9]/", "",$file);
-    echo "$chave ";
+    echo "$chave <br>";
     $di = Carbon::now();
     $std = null;
     $std = $seek->getStd($chave);
@@ -67,7 +68,7 @@ foreach ($resp as $file) {
         $alanc[] = [
             'conta_id' => '64462', //carteira
             'categoria_id' => '790285', //vendas de produtos
-            'descricao' => 'Duplicata '. $dup->descricao,
+            'descricao' => ''. $dup->descricao,
             'centro_custo_lucro_id' => '92047', //vendas
             'valor' => $dup->valor,
             'data_vencimento' => $dup->data_vencimento,
@@ -82,7 +83,7 @@ foreach ($resp as $file) {
             $alanc[] = [
                 'conta_id' => '64562', //VIRTUAL
                 'categoria_id' => '790285', //vendas de produtos
-                'descricao' => 'Duplicata V'. $dup->descricao,
+                'descricao' => 'V'. $dup->descricao,
                 'centro_custo_lucro_id' => '92047', //vendas
                 'valor' => $valor,
                 'data_vencimento' => $dup->data_vencimento,
@@ -93,10 +94,20 @@ foreach ($resp as $file) {
             ];
         }
     }
+    echo "<pre>";
+    print_r($alanc);
+    echo "</pre>";
+    /*
     if ($lanc->save($chave, $alanc)) {
         $logger->warning("SUCESSO ... $chave -> gravada.");
     }
+     * 
+     */
     $df = Carbon::now();
     //sleep(2);
     echo " [" . $di->diffInSeconds($df) . "] \n"; 
+    $i++;
+    if($i > 50) {
+        die;
+    }
 }

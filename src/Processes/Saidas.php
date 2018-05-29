@@ -67,6 +67,7 @@ class Saidas
         $this->dups = [];
         $uf = $std->NFe->infNFe->dest->enderDest->UF;
         $xmun = $std->NFe->infNFe->dest->enderDest->xMun;
+        $nnf = $std->NFe->infNFe->ide->nNF;
         $estado_id = $this->uf[$uf];
         $cidade_id = $this->cidades->find($estado_id, $xmun);
         $dt = Carbon::createFromFormat('Y-m-d\TH:i:sP', $std->NFe->infNFe->ide->dhEmi);
@@ -88,22 +89,18 @@ class Saidas
         $id = $this->parceiros->findOrAdd($data, 'C');
         
         $cobr = $std->NFe->infNFe->cobr;
-        if (!empty($std->NFe->infNFe->cobr->dup)) {
-             if (is_array($std->NFe->infNFe->cobr->dup)) {
-                 $n = count($std->NFe->infNFe->cobr->dup);
-             }
-        }
+        $n = count($std->NFe->infNFe->cobr->dup);
         
         if ($n == 1) {
             $this->dups[] = [
-                'descricao' => $std->NFe->infNFe->cobr->dup->nDup,
+                'descricao' => "[$nnf] Dup. " . $std->NFe->infNFe->cobr->dup->nDup,
                 'valor' => number_format($std->NFe->infNFe->cobr->dup->vDup, 2, '.', ''),
                 'data_vencimento' => $std->NFe->infNFe->cobr->dup->dVenc
             ];
         } else {
             foreach ($std->NFe->infNFe->cobr->dup as $dup) {
                 $this->dups[] = [
-                    'descricao' => $dup->nDup,
+                    'descricao' => "[$nnf] Dup. " . $dup->nDup,
                     'valor' => number_format($dup->vDup, 2, '.', ''),
                     'data_vencimento' => $dup->dVenc
                 ];
