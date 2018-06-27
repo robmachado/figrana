@@ -77,7 +77,7 @@ if (empty($chave) && empty($pessoaid)) {
     $chave = preg_replace("/[^0-9]/", "", $chave);
     $see = new Seek();
     $std = $see->getStd($chave);
-    if (empty($std)) {
+    if (empty(json_decode(json_encode($std),true))) {
         echo "NFe não localizada.";
         die;
     }
