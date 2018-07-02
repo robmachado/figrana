@@ -1,0 +1,9 @@
+# Tarefa busca as nfe de netfimatec
+# Essa tarefa será executada
+# */15  = a cada 15 minutos,
+# 6-21 = das 6 às 21 horas,
+# *    = todos os dias,
+# *    = todos os meses,
+# 1-6  = mas apenas de segunda a sábado
+*/15 6-21 * * 1-6 root /var/www/figrana/jobs/job_rsync_nfe.sh &> /dev/null
+

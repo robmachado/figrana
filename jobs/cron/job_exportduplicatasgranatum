@@ -1,0 +1,8 @@
+# Tarefa exportação das NFe para Granatum
+# Essa tarefa será executada
+# */15  = a cada 15 minutos,
+# 6-21 = das 6 às 21 horas,
+# *    = todos os dias,
+# *    = todos os meses,
+# 1-6  = mas apenas de segunda a sábado
+*/20 6-21 * * 1-6 root php /var/www/figrana/jobs/importaFaturamento.php &> /dev/null

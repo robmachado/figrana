@@ -1,0 +1,9 @@
+# Tarefa importação de contas pagas no Granatum
+# Essa tarefa será executada
+# 3    = aos 3o minuto de cada hora marcada,
+# */3  = a cada 3 horas,
+# *    = todos os dias,
+# *    = todos os meses,
+# 1-6  = mas apenas de segunda a sábado
+3 */3 * * 1-6 root php /var/www/figrana/jobs/importaContasPagas.php &> /dev/null
+
