@@ -58,7 +58,7 @@ class Lancamentos
                 . "'$chave',"
                 . "'$data');";
         if (!$this->db->execSQL($this->dbh, $sqlComm)) {
-            $this->logger->error('Falha na gravação na base de dados');
+            $this->logger->error('Falha na gravação na base de dados ' . $sqlComm);
             $this->db->rollbackTrans($this->dbh);
             return false;    
         }
@@ -69,7 +69,7 @@ class Lancamentos
             $resp = $lanc->add($d);
             $std = json_decode($resp);
             if (empty($std->id)) {
-                $this->logger->error('ERRO $resp');
+                $this->logger->error("ERRO $resp");
                 $this->db->rollbackTrans($this->dbh);
                 return false;
             }
