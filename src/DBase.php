@@ -16,6 +16,7 @@ class DBase
     public $lastId = 0;
     public $ultId = 0;
     public $conta = 0;
+    protected $logger;
 
     protected $transactionCounter = 0;
     private $dbType = 'MySQL';
@@ -56,6 +57,12 @@ class DBase
             $this->dsn = "mysql:host=$this->host;dbname=$this->db";
             $this->dbType = 'MySQL';
         }
+        
+        $this->logger = new Logger('Figrana');
+        $real = realpath(dirname(__FILE__) . "/../storage");
+        $this->logger->pushHandler(
+            new StreamHandler("$real/sql.log", Logger::WARNING)
+        );
     }
     
     /**
@@ -74,7 +81,8 @@ class DBase
         try {
             $dbh = new PDO($this->dsn, $user, $pass);
         } catch (\PDOException $e) {
-            echo "Error: Falha na conexão .. " . $e->getMessage() . "<br/>";
+            $msg = "Error: Falha na conexão .. " . $e->getMessage() . "<br/>";
+            $this->logger->error($msg);
             return false;
         }
         return $dbh;
@@ -101,7 +109,8 @@ class DBase
             $sth->execute($data);
             $aRet = $sth->fetchAll();
         } catch (\PDOException $e) {
-            echo $e->getMessage();
+            $msg = $e->getMessage();
+            $this->logger->error($msg);
         }
         return $aRet;
     }
@@ -127,7 +136,8 @@ class DBase
                         $count = $stmt->execute();
                     }
                 } catch (\PDOException $e) {
-                    echo $e->getMessage();
+                    $msg = $e->getMessage();
+                    $this->logger->error($msg);
                     return false;
                 }
             }
@@ -142,7 +152,8 @@ class DBase
                     $count = $stmt->execute();
                 }
             } catch (\PDOException $e) {
-                echo $e->getMessage();
+                $msg = $e->getMessage();
+                $this->logger->error($msg);
                 return false;
             }
         }
