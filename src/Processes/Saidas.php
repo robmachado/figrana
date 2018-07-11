@@ -12,6 +12,8 @@ use ApiGranatum\Factories\Lancamentos;
 use Carbon\Carbon;
 use DOMDocument;
 use Figrana\DBase;
+use Monolog\Logger;
+use Monolog\Handler\StreamHandler;
 
 class Saidas
 {

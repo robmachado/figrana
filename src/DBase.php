@@ -3,6 +3,8 @@
 namespace Figrana;
 
 use \PDO;
+use Monolog\Logger;
+use Monolog\Handler\StreamHandler;
 
 class DBase
 {

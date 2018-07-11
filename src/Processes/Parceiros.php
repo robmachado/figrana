@@ -4,6 +4,8 @@ namespace Figrana\Processes;
 
 use ApiGranatum\Connector;
 use ApiGranatum\Granatum;
+use Monolog\Logger;
+use Monolog\Handler\StreamHandler;
 
 class Parceiros
 {

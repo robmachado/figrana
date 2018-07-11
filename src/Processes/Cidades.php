@@ -5,6 +5,8 @@ namespace Figrana\Processes;
 use ApiGranatum\Connector;
 use ApiGranatum\Granatum;
 use NFePHP\Common\Strings as StrCommon;
+use Monolog\Logger;
+use Monolog\Handler\StreamHandler;
 
 class Cidades 
 {

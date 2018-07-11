@@ -5,6 +5,8 @@ namespace Figrana\NFe;
 use NFePHP\NFe\Common\Standardize;
 use League\Flysystem\Filesystem;
 use League\Flysystem\Adapter\Local;
+use Monolog\Logger;
+use Monolog\Handler\StreamHandler;
 
 class Seek
 {
