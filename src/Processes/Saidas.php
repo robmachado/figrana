@@ -89,23 +89,24 @@ class Saidas
             'cidade_id' => $cidade_id
         ];
         $id = $this->parceiros->findOrAdd($data, 'C');
-        if (!is_array($std->NFe->infNFe->cobr->dup)) {
-            $this->dups[] = [
-                'descricao' => "[$nnf] Dup. " . $std->NFe->infNFe->cobr->dup->nDup,
-                'valor' => number_format($std->NFe->infNFe->cobr->dup->vDup, 2, '.', ''),
-                'data_vencimento' => $std->NFe->infNFe->cobr->dup->dVenc
-            ];
-        } else {
-            foreach ($std->NFe->infNFe->cobr->dup as $dup) {
+        if (!empty($std->NFe->infNFe->cobr->dup)) {
+            if (!is_array($std->NFe->infNFe->cobr->dup)) {
                 $this->dups[] = [
-                    'descricao' => "[$nnf] Dup. " . $dup->nDup,
-                    'valor' => number_format($dup->vDup, 2, '.', ''),
-                    'data_vencimento' => $dup->dVenc
+                    'descricao' => "[$nnf] Dup. " . $std->NFe->infNFe->cobr->dup->nDup,
+                    'valor' => number_format($std->NFe->infNFe->cobr->dup->vDup, 2, '.', ''),
+                    'data_vencimento' => $std->NFe->infNFe->cobr->dup->dVenc
                 ];
+            } else {
+                foreach ($std->NFe->infNFe->cobr->dup as $dup) {
+                    $this->dups[] = [
+                        'descricao' => "[$nnf] Dup. " . $dup->nDup,
+                        'valor' => number_format($dup->vDup, 2, '.', ''),
+                        'data_vencimento' => $dup->dVenc
+                    ];
+                }
             }
         }
     }
-    
     
     public function find($chave)
     {

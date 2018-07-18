@@ -36,7 +36,7 @@ foreach ($resp as $file) {
     $std = null;
     $std = $seek->getStd($chave);
     //verificar se tem cobrança, se tem não continue 
-    if (empty($std->NFe->infNFe->cobr)) {
+    if (empty($std->NFe->infNFe->cobr->dup)) {
         echo "\n";
         continue;
     }
