@@ -30,6 +30,7 @@ $saidas = new Saidas();
 $lanc = new Lancamentos($saidas->conn, $logger);
 
 foreach ($resp as $file) {
+    
     $chave = preg_replace("/[^0-9]/", "",$file);
     echo "$chave <br>";
     $di = Carbon::now();
@@ -54,7 +55,13 @@ foreach ($resp as $file) {
         echo "\n";
         continue;
     }
-    $saidas->read($std);
+    try {
+        $saidas->read($std);
+    } catch (\Exception $e) {
+        $logger->error('SAIDAS read ' . $e->getMessage());
+        echo "\n";
+        continue;
+    }    
     $cliente = json_decode($saidas->parceiros->dados);
     $pessoaid = $cliente->id;
     $competencia = $saidas->competencia;
