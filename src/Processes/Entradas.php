@@ -136,12 +136,13 @@ class Entradas
                 if (!empty($group1)) {
                     $group->appendChild($group1);
                 }    
+                $node->appendChild($group);
             } else {
                 $elem = $dom->createElement('option', $cat->descricao);
                 $elem->setAttribute('value', $cat->id);
                 $node->appendChild($elem);
             }
-            $node->appendChild($group);
+            
         }
         $dom->appendChild($node);
         return $dom->saveXML($node);
