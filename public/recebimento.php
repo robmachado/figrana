@@ -168,7 +168,7 @@ if (empty($chave) && empty($pessoaid)) {
         $alanc[] = [
             'conta_id' => '64462', //carteira
             'categoria_id' => $categoria,
-            'descricao' => 'Duplicata '. $dupdesc[$i],
+            'descricao' => 'Dup. '. $dupdesc[$i],
             'centro_custo_lucro_id' => '96107', //producao
             'tipo_custo_nivel_producao_id' => 2, //custo variável
             'tipo_custo_apropriacao_produto_id' => 1, //custo direto

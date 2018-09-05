@@ -45,6 +45,7 @@ class Entradas
         if ($cnpj == '58716523000119') {
             return [];
         }
+        $nNF = $std->NFe->infNFe->ide->nNF;
         $uf = $std->NFe->infNFe->emit->enderEmit->UF;
         $xmun = $std->NFe->infNFe->emit->enderEmit->xMun;
         $estado_id = $this->uf[$uf];
@@ -77,14 +78,14 @@ class Entradas
         }    
         if ($n == 1) {
             $this->dups[] = [
-                'descricao' => $std->NFe->infNFe->cobr->dup->nDup,
+                'descricao' => $nNF . '-' . $std->NFe->infNFe->cobr->dup->nDup,
                 'valor' => number_format($std->NFe->infNFe->cobr->dup->vDup, 2, '.', ''),
                 'data_vencimento' => $std->NFe->infNFe->cobr->dup->dVenc
             ];
         } else {
             foreach ($std->NFe->infNFe->cobr->dup as $dup) {
                 $this->dups[] = [
-                    'descricao' => $dup->nDup,
+                    'descricao' => $nNF . '-' . $dup->nDup,
                     'valor' => number_format($dup->vDup, 2, '.', ''),
                     'data_vencimento' => $dup->dVenc
                 ];
