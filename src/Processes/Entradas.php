@@ -68,30 +68,39 @@ class Entradas
         ];
         $id = $this->parceiros->findOrAdd($data, 'F');
         
-        $cobr = $std->NFe->infNFe->cobr;
-        if (!empty($std->NFe->infNFe->cobr->dup)) {
-            if (is_array($std->NFe->infNFe->cobr->dup)) {
-                $n = count($std->NFe->infNFe->cobr->dup);
-            } else {
-                $n = 1;
-            }
-        }    
-        if ($n == 1) {
-            $this->dups[] = [
-                'descricao' => $nNF . '-' . $std->NFe->infNFe->cobr->dup->nDup,
-                'valor' => number_format($std->NFe->infNFe->cobr->dup->vDup, 2, '.', ''),
-                'data_vencimento' => $std->NFe->infNFe->cobr->dup->dVenc
-            ];
-        } else {
-            foreach ($std->NFe->infNFe->cobr->dup as $dup) {
+        if (empty($std->NFe->infNFe->cobr)) {
+            if ($std->NFe->infNFe->pag->detPag->tPag !== 99) {
                 $this->dups[] = [
-                    'descricao' => $nNF . '-' . $dup->nDup,
-                    'valor' => number_format($dup->vDup, 2, '.', ''),
-                    'data_vencimento' => $dup->dVenc
+                    'descricao' => $nNF . '-001',
+                    'valor' => number_format($std->NFe->infNFe->pag->detPag->vPag, 2, '.', ''),
+                    'data_vencimento' => $this->competencia
                 ];
             }
+        } else {
+            $cobr = $std->NFe->infNFe->cobr;
+            if (!empty($std->NFe->infNFe->cobr->dup)) {
+                if (is_array($std->NFe->infNFe->cobr->dup)) {
+                    $n = count($std->NFe->infNFe->cobr->dup);
+                } else {
+                    $n = 1;
+                }
+            }    
+            if ($n == 1) {
+                $this->dups[] = [
+                    'descricao' => $nNF . '-' . $std->NFe->infNFe->cobr->dup->nDup,
+                    'valor' => number_format($std->NFe->infNFe->cobr->dup->vDup, 2, '.', ''),
+                    'data_vencimento' => $std->NFe->infNFe->cobr->dup->dVenc
+                ];
+            } else {
+                foreach ($std->NFe->infNFe->cobr->dup as $dup) {
+                    $this->dups[] = [
+                        'descricao' => $nNF . '-' . $dup->nDup,
+                        'valor' => number_format($dup->vDup, 2, '.', ''),
+                        'data_vencimento' => $dup->dVenc
+                    ];
+                }
+            }
         }
-        
     }
     
     /**
